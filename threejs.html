@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+
+<!--@TODO site hay add kardane model baraye bacheha-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Texture</title>
+    <style>
+
+        body {
+        @include display(flex);
+        @include align-content(center);
+            color: #353535;
+            min-height: 100vh;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 4px;
+            text-align: center;
+            background-color: lightgreen;
+            margin: 0 auto;
+            overflow: hidden;
+
+        }
+
+        #web-gl {
+            height: 100%;
+            width: 100%;
+        }
+
+    </style>
+
+
+    <script type="text/javascript" src="lib/three.js"></script>
+    <script type="text/javascript" src="lib/OrbitControls.js"></script>
+    <script type="text/javascript" src="lib/HDRCubeTextureLoader.js"></script>
+    <script type="text/javascript" src="lib/OBJLoader.js"></script>
+    <script type="text/javascript" src="lib/Tween.js"></script>
+
+
+    <script src="lib/DDSLoader.js"></script>
+    <script src="lib/MTLLoader.js"></script>
+    <script src="lib/OBJLoader.js"></script>
+	<script src='threex.sportballs-master/threex.sportballs.js'></script>
+
+</head>
+<body>
+
+
+<div id="web-gl">
+</div>
+
+<script id="scriptScene0" type="text/javascript">
+
+
+	
+    //  Height and Width Variables
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    //  Basic Variables
+    var camera, renderer, scene;
+
+    var planeFight = new THREE.Mesh();
+
+    //  Controls Variable
+    var controls;
+	
+    var tween;
+    var target = {x: 0, y: 0, z: 0};
+
+    init();
+    animate();
+
+
+    //  Once everything is loaded, we run our Three.js stuff.
+    function init() {
+
+        scene = new THREE.Scene();
+
+        //  Cube mapping first method
+        /*
+        var path = "textures/cube/SwedishRoyalCastle/";
+        var format = '.jpg';
+        var urls = [
+        path + 'px' + format, path + 'nx' + format,
+        path + 'py' + format, path + 'ny' + format,
+        path + 'pz' + format, path + 'nz' + format
+        ];
+        var reflectionCube = new THREE.CubeTextureLoader().load( urls );
+        reflectionCube.format = THREE.RGBFormat;
+        scene.background = reflectionCube;
+        */
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+        //  Cube mapping second method
+        var reflectionCube = new THREE.CubeTextureLoader()
+            .setPath('texture/')
+            .load(['px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg']);
+        reflectionCube.format = THREE.RGBFormat;
+		scene.background = reflectionCube;
+		
+		
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+        //  Create a camera, which defines where we're looking at.
+        camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+
+        //  Fog(color,near,far)
+        scene.fog = new THREE.Fog(0xffffff, 0.1, 1000);
+
+        //  Create a render and set the size
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setClearColor(new THREE.Color(0x000000));
+        renderer.setSize(width, height);
+		
+		renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        //  Enable animation loop when using damping or autorotation
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+        controls.enableZoom = true;
+
+        //  Position and point the camera to the center of the scene
+        camera.position.x = 50;
+        camera.position.y = 50;
+        camera.position.z = 150;
+		
+        camera.lookAt(scene.position);
+		
+        //  Add the output of the renderer to the html element
+        document.getElementById("web-gl").appendChild(renderer.domElement);
+        window.addEventListener('keyup', onDocumentKeyUp, false);
+
+	
+		//  Add Point Light
+		var c= 0xffffff ;
+		
+        var pointLight = new THREE.PointLight(c, 1, 0, 2);
+        pointLight.position.set(-150, 170, 100);
+        pointLight.castShadow = true;
+        pointLight.shadow.camera.near = 1;
+        pointLight.shadow.camera.far = 1000;
+		
+		
+        scene.add(pointLight);
+			
+			
+
+        //  Surface Texture
+        var texture = new THREE.TextureLoader().load('texture/Floor.jpg');
+        texture.repeat.set(10, 10);
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.magFilter = THREE.NearestFilter;
+        texture.minFilter = THREE.LinearMipMapLinearFilter;
+
+        //Surface Mesh
+        var surface = new THREE.PlaneGeometry(700, 700);
+        var surfaceMaterial = new THREE.MeshPhongMaterial({color: 0xcccccc, side: THREE.DoubleSide, map: texture});
+        var surfaceMesh = new THREE.Mesh(surface, surfaceMaterial);
+        surfaceMesh.rotateX(Math.PI / 2);
+        surfaceMesh.position.y = -50;
+        surfaceMesh.position.z = -300;
+		
+		surfaceMesh.receiveShadow = true;
+        scene.add(surfaceMesh);
+		
+
+		
+		
+		// 1 create the  Sphere
+
+        var texture2 = THREE.ImageUtils.loadTexture('texture/Golf.jpg');
+
+        texture2.magFilter = THREE.NearestFilter;
+        texture2.minFilter = THREE.NearestFilter;
+
+        var sphereGeometry = new THREE.SphereGeometry(15, 30, 30);
+        var sphereMaterial = new THREE.MeshPhongMaterial( {
+            map:texture2,
+            shading: THREE.SmoothShading
+        } );
+        sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.set(0,0,0);
+		sphere.rotation.y += 180;
+		sphere.rotation.x += -45;
+        sphere.castShadow=true;
+        sphere.receiveShadow = true;
+        scene.add(sphere);
+		
+		tween = new TWEEN.Tween(sphere.position).to(target, 500);
+        tween.delay(200);
+        tween.easing(TWEEN.Easing.Cubic.InOut);
+		
+
+//////////////////////////////////////////////////////////////////////////////////////	
+//////////////////////////////////////////////////////////////////////////////////////	
+////////////////////////////////////////////////////////////////////BOXES		
+		
+		//  Box1
+		var box1;
+        var boxtexture = THREE.ImageUtils.loadTexture('texture/box.jpg');
+
+        boxtexture.magFilter = THREE.NearestFilter;
+        boxtexture.minFilter = THREE.NearestFilter;
+
+        var boxGeometry = new THREE.BoxGeometry( 80, 80, 80 );
+        var boxMaterial = new THREE.MeshPhongMaterial( {
+            map:boxtexture,
+            shininess: 200,
+            specular: 0xffffff,
+            shading: THREE.SmoothShading
+        } );
+        box1 = new THREE.Mesh( boxGeometry, boxMaterial );
+        box1.position.set(-30,-10,-200);
+		
+        box1.castShadow=true;
+        box1.receiveShadow = true;
+
+        scene.add( box1 );
+	
+
+////////////////////////////////////////////////////////////////////BOXES		
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////	
+///////////////////////////////////////////////////////////////////Walls		
+			
+		//  wall back
+		var cube2;
+        var texture4 = THREE.ImageUtils.loadTexture('texture/WallTexture.jpg');
+
+        texture4.magFilter = THREE.NearestFilter;
+        texture4.minFilter = THREE.NearestFilter;
+
+        var cube2Geometry = new THREE.BoxGeometry( 700 ,175, 10 );
+        var cube2Material = new THREE.MeshPhongMaterial( {
+            map:texture4,
+            
+        } );
+        cube2 = new THREE.Mesh( cube2Geometry, cube2Material );
+        cube2.position.set(0,37,-650);
+        cube2.castShadow=true;
+        cube2.receiveShadow = true;
+
+	    scene.add( cube2 );
+		
+		//  wall back
+		var cube3;
+        var texture5 = THREE.ImageUtils.loadTexture('texture/WallTexture.jpg');
+
+        texture5.magFilter = THREE.NearestFilter;
+        texture5.minFilter = THREE.NearestFilter;
+
+        var cube3Geometry = new THREE.BoxGeometry( 10, 175, 700 );
+        var cube3Material = new THREE.MeshPhongMaterial( {
+            map:texture5,
+           
+        } );
+        cube3 = new THREE.Mesh( cube3Geometry, cube3Material );
+        cube3.position.set(-340,37,-295);
+        cube3.castShadow=true;
+        cube3.receiveShadow = true;
+
+	    scene.add( cube3 );
+		
+		
+		
+		//  wall back
+		var cube4;
+        var texture6 = THREE.ImageUtils.loadTexture('texture/WallTexture.jpg');
+
+        texture6.magFilter = THREE.NearestFilter;
+        texture6.minFilter = THREE.NearestFilter;
+
+        var cube4Geometry = new THREE.BoxGeometry( 10, 175, 700 );
+        var cube4Material = new THREE.MeshPhongMaterial( {
+            map:texture5,
+           
+        } );
+        cube4 = new THREE.Mesh( cube4Geometry, cube4Material );
+        cube4.position.set(340,37,-295);
+        cube4.castShadow=true;
+        cube4.receiveShadow = true;
+
+	    scene.add( cube4 );
+			
+		
+		
+        //  Add  ambient lighting
+       // var ambiColor = "#ffffff";
+       // var ambientLight = new THREE.AmbientLight(ambiColor, 1);
+       // scene.add(ambientLight);
+
+		var objectloader4 = new THREE.ObjectLoader();
+        objectloader4.load("model/plane-fight-threejs/plane-fight.json", function (obj) {
+
+            var planeFight = obj;
+
+            planeFight.scale.set(4,4,4);
+			planeFight.position.set(-10,75,20);
+            scene.add(planeFight);
+
+        });
+		
+		var listener = new THREE.AudioListener();
+        camera.add( listener );
+
+		var audioLoader = new THREE.AudioLoader();
+		
+		var sound = new THREE.PositionalAudio(listener);
+        audioLoader.load('sound/sound.mp3',function (buffer) {
+            sound.setBuffer( buffer );
+            sound.setRefDistance(20);
+			sound.setLoop(true);
+            sound.play();
+        });
+		
+		box1.add(sound);
+    }
+
+    function animate() {
+
+        renderer.render(scene, camera);
+        TWEEN.update();
+        controls.update();
+        requestAnimationFrame(animate);
+    }
+
+    //  Code 87 == W 
+    function onDocumentKeyUp(event) {
+
+        if (event.keyCode == 87) {
+
+            MoveU();
+            tween.start();
+        }
+		else if(event.keyCode == 83){
+			MoveD();
+            tween.start();
+       }
+		
+    }
+	var k=1 ,j=1;
+    //  Randomize target
+    function MoveU() {
+
+		target.y +=10;
+		
+    }
+	
+	function MoveD(){
+		target.y -=10;
+	}
+
+	
+	
+	
+</script>
+</body>
+</html>

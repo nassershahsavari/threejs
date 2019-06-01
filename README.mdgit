@@ -1,0 +1,2 @@
+"# fileclass"  initgit add README.mdgit commit -m "first commit"git remote add origin git@github.com:nassershahsavari/fileclass.gitgit push -u origin master
+"# fileclass"  initgit add README.mdgit commit -m "first commit"git remote add origin git@github.com:nassershahsavari/fileclass.gitgit push -u origin master
